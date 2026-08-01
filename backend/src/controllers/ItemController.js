@@ -1,4 +1,4 @@
-const Item = require('../models/Item');
+const Item = require('../models/item');
 
 // GET /api/items - Obtener todos
 const getItems = async (req, res) => {
