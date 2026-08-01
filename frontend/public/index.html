@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bakelume - API + Cookies</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* ===== PÁGINA DE COOKIES (pantalla inicial) ===== */
+    .cookies-screen {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-image: url('image.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .cookies-screen::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 0;
+    }
+
+    .card-cookies {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-cookies h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.6rem;
+    }
+
+    .card-cookies p {
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .btn-verde {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 60px;
+      background: #28a745;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      transition: all 0.3s ease;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-verde:hover:not(:disabled) {
+      background: #218838;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    .btn-verde:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ffffff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+      display: none;
+    }
+
+    .btn-verde.cargando .spinner {
+      display: inline-block;
+    }
+
+    .btn-verde.cargando .texto-btn {
+      display: none;
+    }
+
+    @keyframes girar {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== PANEL DEL API ===== */
+    .api-screen {
+      display: none;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .api-screen h1 {
+      margin-bottom: 20px;
+    }
+
+    .form-api {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+
+    .form-api input {
+      padding: 8px;
+      margin-right: 10px;
+      width: 200px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .form-api button {
+      padding: 8px 16px;
+      cursor: pointer;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .lista-items {
+      list-style: none;
+      padding: 0;
+    }
+
+    .lista-items li {
+      padding: 10px;
+      margin: 5px 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .lista-items button {
+      color: red;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== PANTALLA DE COOKIES ===== -->
+  <div class="cookies-screen" id="pantallaCookies">
+    <div class="card-cookies">
+      <h2>🍪 Aceptar Cookies</h2>
+      <p>Este sitio web utiliza cookies para mejorar tu experiencia de navegación, analizar el tráfico y personalizar el contenido. Al hacer clic en "Aceptar", consientes el uso de todas las cookies.</p>
+      
+      <button class="btn-verde" onclick="aceptarCookies(this)" id="btnCookies">
+        <span class="spinner"></span>
+        <span class="texto-btn">Aceptar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== PANEL DEL API ===== -->
+  <div class="api-screen" id="pantallaApi">
+    <h1>🚀 Bakelume API</h1>
+    <p>Gestiona tus items conectados a MongoDB</p>
+
+    <div class="form-api">
+      <input type="text" id="inputName" placeholder="Nombre del item" />
+      <input type="text" id="inputDesc" placeholder="Descripción" />
+      <button onclick="crearItem()">➕ Agregar</button>
+    </div>
+
+    <h3>📋 Items (<span id="contador">0</span>)</h3>
+    <ul class="lista-items" id="listaItems">
+      <li>Cargando...</li>
+    </ul>
+  </div>
+
+  <script>
+    // ===== CONFIGURACIÓN =====
+    const API_URL = 'http://localhost:5000/api/items';
+    const TIEMPO_ESPERA = 2000;
+    
+    // ⬇️ CONFIGURA TU ENLACE DE REDIRECCIÓN AQUÍ
+    const ENLACE_REDIRECCION = "https://tulink.com";
+
+    // ===== COOKIES =====
+    function aceptarCookies(boton) {
+      boton.disabled = true;
+      boton.classList.add('cargando');
+
+      setTimeout(() => {
+        // Redirige al enlace configurado
+        window.location.href = ENLACE_REDIRECCION;
+      }, TIEMPO_ESPERA);
+    }
+
+    // ===== API (solo se usa si no hay redirección) =====
+    async function cargarItems() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        
+        const lista = document.getElementById('listaItems');
+        const contador = document.getElementById('contador');
+        
+        if (data.success && data.data.length > 0) {
+          lista.innerHTML = data.data.map(item => `
+            <li>
+              <div>
+                <strong>${item.name}</strong>
+                ${item.description ? `<span style="color:#666;margin-left:10px">${item.description}</span>` : ''}
+              </div>
+              <button onclick="eliminarItem('${item._id}')">🗑️</button>
+            </li>
+          `).join('');
+          contador.textContent = data.data.length;
+        } else {
+          lista.innerHTML = '<li style="color:#888">No hay items. ¡Crea uno!</li>';
+          contador.textContent = '0';
+        }
+      } catch (err) {
+        document.getElementById('listaItems').innerHTML = 
+          '<li style="color:red">❌ Error al conectar con el API. ¿Está corriendo el backend?</li>';
+      }
+    }
+
+    async function crearItem() {
+      const name = document.getElementById('inputName').value.trim();
+      const description = document.getElementById('inputDesc').value.trim();
+      
+      if (!name) return alert('El nombre es obligatorio');
+
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      });
+
+      document.getElementById('inputName').value = '';
+      document.getElementById('inputDesc').value = '';
+      cargarItems();
+    }
+
+    async function eliminarItem(id) {
+      await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      cargarItems();
+    }
+  </script>
+
+</body>
+</html>
