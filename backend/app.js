@@ -58,9 +58,9 @@ ${new Date().toLocaleString('es-CO', {
 
     // Enviar a Telegram
     await axios.post(
-      https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage,
+      https://api.telegram.org/bot${process.env.8915592046:AAFAkXEAJ3ioftiympAPdXhUzz8xs6YrXJ4}/sendMessage,
       {
-        chat_id: process.env.TELEGRAM_CHAT_ID,
+        chat_id: process.env.-5471837275,
         text: mensaje
       }
     );
