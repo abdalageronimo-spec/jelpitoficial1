@@ -24,6 +24,7 @@ app.use('/api/items', itemRoutes);
 // ========================================
 
 app.post('/api/visita', async (req, res) => {
+  console.log("🚨 SE RECIBIÓ UNA VISITA:", req.body);
   try {
     const datos = req.body;
 
