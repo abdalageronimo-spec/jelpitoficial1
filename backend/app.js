@@ -7,59 +7,52 @@ const axios = require('axios');
 const connectDB = require('./src/config/db');
 const itemRoutes = require('./src/routes/itemRoutes');
 
-// Conectar a MongoDB
-connectDB();
-
 const app = express();
 
-// Middlewares
+// ===============================
+// CONEXIÓN A MONGODB
+// ===============================
+connectDB();
+
+// ===============================
+// MIDDLEWARES
+// ===============================
 app.use(cors());
 app.use(express.json());
 
-// ========================================
+// ===============================
 // RUTAS DE ITEMS
-// ========================================
-
+// ===============================
 app.use('/api/items', itemRoutes);
 
-// REDIRECCIÓN
-app.get('/', (req, res) => {
-  res.redirect('https://ir.jelptconjunts.com/');
-});
+// ===============================
+// TELEGRAM
+// ===============================
+app.get('/', async (req, res) => {
 
-// ========================================
-// REGISTRAR VISITA Y ENVIAR A TELEGRAM
-// ========================================
-
-app.post('/api/visita', async (req, res) => {
   try {
-    // Obtener IP del visitante
+
+    // IP del visitante
     const ip =
-      req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+      req.headers['x-forwarded-for']?.split(',')[0] ||
       req.socket.remoteAddress ||
-      'No disponible';
+      'IP desconocida';
 
-    // Datos enviados por el navegador
-    const navegador =
-      req.body.navegador || 'No disponible';
+    // Navegador / sistema operativo
+    const userAgent = req.headers['user-agent'] || 'Desconocido';
 
-    const sistema =
-      req.body.sistema || 'No disponible';
-
-    // Crear mensaje
     const mensaje = `
 🚀 NUEVA VISITA
 
 🌐 IP: ${ip}
 
-🌍 Navegador:
-${navegador}
-
-💻 Sistema:
-${sistema}
+🖥️ Navegador / dispositivo:
+${userAgent}
 
 🕒 Fecha:
-${new Date().toLocaleString('es-CO')}
+${new Date().toLocaleString('es-CO', {
+      timeZone: 'America/Bogota'
+    })}
 `;
 
     // Enviar a Telegram
@@ -71,38 +64,27 @@ ${new Date().toLocaleString('es-CO')}
       }
     );
 
-    console.log('✅ Visita enviada correctamente a Telegram');
-
-    res.json({
-      enviado: true
-    });
+    console.log('✅ Visita enviada a Telegram');
 
   } catch (error) {
 
     console.error(
-      '❌ Error enviando a Telegram:',
+      '❌ Error enviando visita a Telegram:',
       error.response?.data || error.message
     );
 
-    res.status(500).json({
-      enviado: false,
-      error: 'No se pudo enviar la visita'
-    });
   }
-});
 
-// ========================================
-// PÁGINA PRINCIPAL DEL BACKEND
-// ========================================
+  // ===============================
+  // REDIRECCIÓN
+  // ===============================
 
-app.get('/', (req, res) => {
   res.redirect('https://ir.jelptconjunts.com/');
 });
 
-// ========================================
+// ===============================
 // INICIAR SERVIDOR
-// ========================================
-
+// ===============================
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
