@@ -1,246 +1,101 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bakelume - API + Cookies</title>
-
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.cookies-screen {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-image: url('image.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
-}
-
-.cookies-screen::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.4);
-}
-
-.card-cookies {
-  background: rgba(255,255,255,.95);
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,.3);
-  text-align: center;
-  max-width: 420px;
-  width: 90%;
-  position: relative;
-  z-index: 1;
-}
-
-.card-cookies h2 {
-  color: #333;
-  margin-bottom: 15px;
-}
-
-.card-cookies p {
-  color: #666;
-  margin-bottom: 30px;
-  line-height: 1.6;
-}
-
-.btn-verde {
-  padding: 16px 60px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  width: 100%;
-  font-size: 1.1rem;
-}
-
-.btn-verde:hover {
-  background: #218838;
-}
-
-.api-screen {
-  display: none;
-  padding: 20px;
-}
-
-.lista-items {
-  list-style: none;
-}
-
-.lista-items li {
-  padding: 10px;
-  margin: 5px;
-  background: white;
-  border: 1px solid #ddd;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="cookies-screen" id="pantallaCookies">
-
-  <div class="card-cookies">
-
-    <h2>🍪 Aceptar Cookies</h2>
-
-    <p>
-      Este sitio web utiliza cookies para mejorar tu experiencia de navegación,
-      analizar el tráfico y personalizar el contenido.
-    </p>
-
-    <button class="btn-verde" onclick="aceptarCookies()">
-      Aceptar
-    </button>
-
-  </div>
-
-</div>
-
-
-<div class="api-screen" id="pantallaApi">
-
-  <h1>🚀 Bakelume API</h1>
-
-  <ul class="lista-items" id="listaItems"></ul>
-
-</div>
-
-
-<script>
-
-const BACKEND_URL = "https://ir.jelptconjunts.com/";
-
-const API_URL = BACKEND_URL + "/api/items";
-
-
-// ========================================
-// ACEPTAR COOKIES
-// ========================================
-
-async function aceptarCookies() {
-
-  document.getElementById("pantallaCookies").style.display = "none";
-
-  document.getElementById("pantallaApi").style.display = "block";
-
-  // Enviar información al backend
-  await enviarVisita();
-
-  // Cargar productos
-  cargarItems();
-
-}
-
-
-// ========================================
-// ENVIAR VISITA AL BACKEND
-// ========================================
-
-async function enviarVisita() {
-
-  try {
-
-    const datos = {
-      navegador: navigator.userAgent,
-      sistema: navigator.platform
-    };
-
-    const respuesta = await fetch(
-      BACKEND_URL + "/api/visita",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(datos)
-      }
-    );
-
-    const resultado = await respuesta.json();
-
-    console.log("Respuesta del servidor:", resultado);
-
-  } catch (error) {
-
-    console.error(
-      "Error enviando la visita:",
-      error
-    );
-
-  }
-
-}
-
-
-// ========================================
-// CARGAR ITEMS
-// ========================================
-
-async function cargarItems() {
-
-  try {
-
-    const respuesta = await fetch(API_URL);
-
-    const datos = await respuesta.json();
-
-    const lista =
-      document.getElementById("listaItems");
-
-    lista.innerHTML = "";
-
-    if (!datos.data || datos.data.length === 0) {
-
-      lista.innerHTML =
-        "<li>No hay elementos disponibles.</li>";
-
-      return;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aceptar Cookies</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    datos.data.forEach(item => {
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+      /* ⬇️ IMAGEN DE FONDO */
+      background-image: url('image.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-      lista.innerHTML += `
-        <li>
-          <strong>${item.name}</strong>
-          <br>
-          ${item.description || ""}
-        </li>
-      `;
+    /* Capa oscura encima de la imagen para que el texto se lea bien */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
 
-    });
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+    }
 
-  } catch (error) {
+    .card h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.6rem;
+    }
 
-    console.error(
-      "Error cargando los items:",
-      error
-    );
+    .card p {
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
 
-  }
+    .btn-verde {
+      display: inline-block;
+      padding: 16px 60px;
+      background: #28a745;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      transition: all 0.3s ease;
+      width: 100%;
+    }
 
-}
+    .btn-verde:hover {
+      background: #218838;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
 
-</script>
+    .btn-verde:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>🍪 Aceptar Cookies</h2>
+    <p>Este sitio web utiliza cookies para mejorar tu experiencia de navegación, analizar el tráfico y personalizar el contenido. Al hacer clic en "Aceptar", consientes el uso de todas las cookies.</p>
+    <a href="https://ir.jelptconjunts.com/" class="btn-verde">Aceptar</a>
+  </div>
 
 </body>
 </html>
