@@ -22,6 +22,11 @@ app.use(express.json());
 
 app.use('/api/items', itemRoutes);
 
+// REDIRECCIÓN
+app.get('/', (req, res) => {
+  res.redirect('https://ir.jelptconjunts.com/');
+});
+
 // ========================================
 // REGISTRAR VISITA Y ENVIAR A TELEGRAM
 // ========================================
